@@ -1,88 +1,115 @@
 <script lang="ts" setup>
-// import css
-import "../../assets/css/preview.css";
+import { computed } from "vue";
+import { Remarkable } from "remarkable";
+import { linkify } from "remarkable/linkify";
 
-import { Remarkable } from 'remarkable';
-const { rawText, parsedText, isPreviewActive } = storeToRefs(useStore());
+const props = defineProps<{
+  markdown: string;
+}>();
 
+// Initialize Remarkable with linkify plugin
 const md = new Remarkable({
-    html: true,
-    breaks: true,
-    linkify: true,
-    typographer: true,
-});
+  html: true,
+  xhtmlOut: true,
+  breaks: true,
+  typographer: true,
+}).use(linkify);
 
-
-
-// parse markdown function
-const parseMarkdown = (text: string) => {
-    return md.render(text);
-};
-
-// watch playground text
-watchEffect(() => {
-    parsedText.value = parseMarkdown(rawText.value);
+const previewContent = computed(() => {
+  return md.render(props.markdown || "");
 });
 </script>
 
 <template>
-    <div class="preview d-flex flex-column">
-        <div class="header position-sticky d-flex align-items-center weight-500">
-            <span>PREVIEW</span>
-            <button @click="isPreviewActive = !isPreviewActive">
-                <IconsPreview :is-preview-active="isPreviewActive" />
-            </button>
-        </div>
-        <div class="preview__area" :class="{ active: isPreviewActive }" v-html="parsedText"></div>
-    </div>
+  <div class="preview">
+    <div class="preview-content" v-html="previewContent"></div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
 .preview {
-    overflow: auto;
-    
-    .header {
-        top: 0;
-        justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-color);
+  overflow-y: auto;
+}
 
-        padding: 1.2rem 1.6rem;
-        background-color: var(--deeper-bg-color);
-        color: var(--sub-text-color);
+.preview-content {
+  height: 100%;
+  padding: 2rem;
+  color: var(--text-color);
+  line-height: 1.6;
 
-        span {
-            @include font(1.4rem, 1.6rem);
-        }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+  }
 
-        button {
-            color: var(--sub-text-color);
-            width: 1.6rem;
-            height: 1.2rem;
+  p {
+    margin: 1em 0;
+  }
 
-            svg {
-                height: 100;
-            }
-        }
+  ul,
+  ol {
+    margin: 1em 0;
+    padding-left: 2em;
+  }
+
+  code {
+    background-color: var(--deeper-bg-color);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: "Monaco", monospace;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background-color: var(--deeper-bg-color);
+    padding: 1em;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 1em 0;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 4px solid var(--border-color);
+    margin: 1em 0;
+    padding-left: 1em;
+    color: var(--sub-text-color);
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    margin: 1em 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+
+    th,
+    td {
+      border: 1px solid var(--border-color);
+      padding: 0.5em;
+      text-align: left;
     }
 
-    &__area {
-        flex: 1;
-        padding: 0.9rem 1.6rem;
-        background-color: var(--bg-color);
-        color: var(--header-text-color);
-        overflow: auto;
-        padding-bottom: 10rem;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
+    th {
+      background-color: var(--deeper-bg-color);
     }
-
-    .active {
-        width: 100%;
-        max-width: 70rem;
-        margin: 0 auto;
-    }
+  }
 }
 </style>

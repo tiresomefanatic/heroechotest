@@ -1,4 +1,11 @@
 import { defineStore } from "pinia";
+import { ref } from "vue";
+
+interface Doc {
+    id: string;
+    title: string;
+    content: string;
+}
 
 export const useStore = defineStore("store", () => {
     const docTitle = ref("Untitled Document.md");
@@ -20,6 +27,11 @@ export const useStore = defineStore("store", () => {
         }
     };
 
+    // Toggle preview mode
+    const togglePreview = () => {
+        isPreviewActive.value = !isPreviewActive.value;
+    };
+
     // set current document to be edited
     const setCurrentDoc = (id: string) => {
         const doc = docs.value.find((doc) => doc.id === id);
@@ -28,6 +40,12 @@ export const useStore = defineStore("store", () => {
             docTitle.value = doc.title;
             rawText.value = doc.content;
         }
+    };
+
+    // Update raw text content
+    const updateRawText = (content: string) => {
+        console.log('Updating raw text:', content);
+        rawText.value = content;
     };
 
     return {
@@ -40,5 +58,7 @@ export const useStore = defineStore("store", () => {
         docs,
         setTheme,
         setCurrentDoc,
+        togglePreview,
+        updateRawText,
     };
 });

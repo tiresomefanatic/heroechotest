@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 useHead({
-  title: 'Markdown Playground',
+  title: "Markdown Playground",
   meta: [
     {
       name: "viewport",
-      content: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+      content:
+        "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
     },
     {
-      name: 'description',
-      content: 'Home page of Markdown Playground',
+      name: "description",
+      content: "Home page of Markdown Playground",
     },
   ],
 });
@@ -19,21 +20,26 @@ const { setTheme } = useStore();
 const isMenuOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 
-const toggleDeleteModal = (value: boolean) => isDeleteModalOpen.value = value;
+const toggleDeleteModal = (value: boolean) => (isDeleteModalOpen.value = value);
 
-const toggleMenu = (value: boolean) => isMenuOpen.value = value;
+const toggleMenu = (value: boolean) => (isMenuOpen.value = value);
 
-const theme = useCookie('theme');
+const theme = useCookie("theme");
 
 onBeforeMount(async () => {
   if (theme.value) setTheme(theme.value);
-  else window.matchMedia('(prefers-color-scheme: dark)').matches && setTheme("dark");
+  else
+    window.matchMedia("(prefers-color-scheme: dark)").matches &&
+      setTheme("dark");
 
   // get all docs
   const { getDocs } = useMdDocs();
   const data = await getDocs();
   if (data) {
-    data.sort((a: Doc, b: Doc) => new Date(b.created).getTime() - new Date(a.created).getTime());
+    data.sort(
+      (a: Doc, b: Doc) =>
+        new Date(b.created).getTime() - new Date(a.created).getTime()
+    );
     docs.value = data;
   }
 });
@@ -43,16 +49,29 @@ onBeforeMount(async () => {
   <div class="home d-flex">
     <BaseSideBar class="sidebar" v-show="isMenuOpen" />
     <div class="home__container">
-      <BaseHeader @toggle-menu="toggleMenu" @toggle-delete-modal="toggleDeleteModal(true)" />
-      <div class="home__container-main d-grid" :class="{ main: !isPreviewActive }">
+      <BaseHeader
+        @toggle-menu="toggleMenu"
+        @toggle-delete-modal="toggleDeleteModal(true)"
+      />
+      <div
+        class="home__container-main d-grid"
+        :class="{ main: !isPreviewActive }"
+      >
         <PlaygroundEditor v-show="!isPreviewActive" />
-        <hr v-if="!isPreviewActive">
-        <PlaygroundPreview :class="isPreviewActive ? 'preview-pane-active' : 'preview-pane-inactive'" />
+        <hr v-if="!isPreviewActive" />
+        <PlaygroundPreview
+          :class="
+            isPreviewActive ? 'preview-pane-active' : 'preview-pane-inactive'
+          "
+        />
       </div>
     </div>
   </div>
 
-  <DeleteModal v-if="isDeleteModalOpen" @toggle-delete-modal="toggleDeleteModal" />
+  <DeleteModal
+    v-if="isDeleteModalOpen"
+    @toggle-delete-modal="toggleDeleteModal"
+  />
 </template>
 
 <style lang="scss" scoped>
