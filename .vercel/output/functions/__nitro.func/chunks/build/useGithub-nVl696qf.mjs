@@ -1,6 +1,11 @@
-import { Octokit } from '@octokit/rest';
-import { d as defineStore, c as useState, b as useToast, e as useRuntimeConfig } from './server.mjs';
-import { ref, computed } from 'vue';
+import { Octokit } from "@octokit/rest";
+import {
+  d as defineStore,
+  c as useState,
+  b as useToast,
+  e as useRuntimeConfig,
+} from "./server.mjs";
+import { ref, computed } from "vue";
 
 const useEditorStore = defineStore("editor", {
   state: () => {
@@ -11,7 +16,7 @@ const useEditorStore = defineStore("editor", {
       gitContents: gitState ? JSON.parse(gitState) : {},
       currentBranch: "main",
       collaborators: [],
-      isCollaborating: false
+      isCollaborating: false,
     };
   },
   getters: {
@@ -20,7 +25,8 @@ const useEditorStore = defineStore("editor", {
         "Getting saved contents for key:",
         `${filePath}-${state.currentBranch}`
       );
-      const saves = state.savedContents[`${filePath}-${state.currentBranch}`] || [];
+      const saves =
+        state.savedContents[`${filePath}-${state.currentBranch}`] || [];
       console.log("Found saves:", saves);
       return saves;
     },
@@ -31,23 +37,23 @@ const useEditorStore = defineStore("editor", {
     getCurrentGitContent: (state) => (filePath) => {
       const key = `${filePath}-${state.currentBranch}`;
       return state.gitContents[key];
-    }
+    },
   },
   actions: {
     saveContent(filePath, content) {
       console.log("Saving content - Length:", content.length);
       console.log("Preview:", {
         filePath,
-        content: content.substring(0, 100) + "..."
+        content: content.substring(0, 100) + "...",
       });
       const { showToast } = useToast();
       const key = `${filePath}-${this.currentBranch}`;
       const newSave = {
         content: content.toString(),
         // Ensure content is a string
-        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+        timestamp: /* @__PURE__ */ new Date().toISOString(),
         branch: this.currentBranch,
-        filePath
+        filePath,
       };
       if (!this.savedContents[key]) {
         this.savedContents[key] = [];
@@ -81,13 +87,13 @@ const useEditorStore = defineStore("editor", {
         showToast({
           title: "Error",
           description: "Failed to save changes locally",
-          type: "error"
+          type: "error",
         });
         return;
       }
       showToast({
         title: "Changes Saved",
-        description: `Changes saved locally on branch "${this.currentBranch}"`
+        description: `Changes saved locally on branch "${this.currentBranch}"`,
       });
     },
     saveGitContent(filePath, content, branch, sha) {
@@ -96,7 +102,7 @@ const useEditorStore = defineStore("editor", {
         content,
         branch,
         sha,
-        lastFetched: (/* @__PURE__ */ new Date()).toISOString()
+        lastFetched: /* @__PURE__ */ new Date().toISOString(),
       };
       localStorage.setItem(
         "editor-git-contents",
@@ -128,7 +134,7 @@ const useEditorStore = defineStore("editor", {
         );
         showToast({
           title: "Saves Cleared",
-          description: `All local saves cleared for "${filePath}" on branch "${this.currentBranch}"`
+          description: `All local saves cleared for "${filePath}" on branch "${this.currentBranch}"`,
         });
       }
     },
@@ -155,7 +161,7 @@ const useEditorStore = defineStore("editor", {
         );
         showToast({
           title: "Save Deleted",
-          description: `Local save deleted from branch "${this.currentBranch}"`
+          description: `Local save deleted from branch "${this.currentBranch}"`,
         });
       }
     },
@@ -170,11 +176,12 @@ const useEditorStore = defineStore("editor", {
       const gitKey = `${filePath}-${this.currentBranch}`;
       if (this.gitContents[gitKey]) {
         this.gitContents[gitKey].content = content;
-        this.gitContents[gitKey].lastFetched = (/* @__PURE__ */ new Date()).toISOString();
+        this.gitContents[gitKey].lastFetched =
+          /* @__PURE__ */ new Date().toISOString();
       }
       this.saveContent(filePath, content);
-    }
-  }
+    },
+  },
 });
 const useGithub = () => {
   const config = useRuntimeConfig();
@@ -183,7 +190,7 @@ const useGithub = () => {
   const currentBranch = useState("github-current-branch", () => "main");
   const branches = ref([]);
   const octokit = new Octokit({
-    auth: undefined
+    auth: undefined,
   });
   const initiateLogin = () => {
     return;
@@ -196,13 +203,11 @@ const useGithub = () => {
   });
   const latestSHA = /* @__PURE__ */ new Map();
   const latestContent = /* @__PURE__ */ new Map();
-  const saveCommitContent = (owner, repo, path, branch, content, sha) => {
-  };
+  const saveCommitContent = (owner, repo, path, branch, content, sha) => {};
   const getCommitContent = (owner, repo, path, branch) => {
     return null;
   };
-  const clearCommitContent = (owner, repo, path, branch) => {
-  };
+  const clearCommitContent = (owner, repo, path, branch) => {};
   const getFileContent = async (owner, repo, path, branch) => {
     if (!isLoggedIn.value) {
       throw new Error("Authentication required to get content");
@@ -216,14 +221,14 @@ const useGithub = () => {
         console.log(`Using latest cached content for ${path}`);
         return {
           content,
-          sha: latestSha
+          sha: latestSha,
         };
       }
       const { data } = await octokit.rest.repos.getContent({
         owner,
         repo,
         path,
-        ref: targetBranch
+        ref: targetBranch,
       });
       if (!("content" in data)) {
         throw new Error("Not a file");
@@ -235,7 +240,7 @@ const useGithub = () => {
       }
       return {
         content: decodedContent,
-        sha: "sha" in data ? data.sha : null
+        sha: "sha" in data ? data.sha : null,
       };
     } catch (error) {
       console.error("Error getting file content:", error);
@@ -257,7 +262,7 @@ const useGithub = () => {
         throw new Error(`Failed to fetch content: ${response.statusText}`);
       }
       const githubContent = await response.text();
-      if (commitData2) ;
+      if (commitData2);
       return githubContent;
     } catch (error) {
       console.error("Error fetching content:", error);
@@ -268,7 +273,16 @@ const useGithub = () => {
       throw error;
     }
   };
-  const saveFileContent = async (owner, repo, path, content, message, branch, force, sha) => {
+  const saveFileContent = async (
+    owner,
+    repo,
+    path,
+    content,
+    message,
+    branch,
+    force,
+    sha
+  ) => {
     var _a;
     if (!isLoggedIn.value) {
       throw new Error("Authentication required to save content");
@@ -278,7 +292,7 @@ const useGithub = () => {
       await octokit.rest.repos.getBranch({
         owner,
         repo,
-        branch: targetBranch
+        branch: targetBranch,
       });
       const commitData2 = getCommitContent(owner, repo, path, targetBranch);
       let fileSha = (commitData2 == null ? void 0 : commitData2.sha) || sha;
@@ -288,7 +302,7 @@ const useGithub = () => {
             owner,
             repo,
             path,
-            ref: targetBranch
+            ref: targetBranch,
           });
           if ("sha" in data) {
             fileSha = data.sha;
@@ -306,17 +320,24 @@ const useGithub = () => {
         message: `${message} [branch: ${targetBranch}]`,
         content: btoa(unescape(encodeURIComponent(content))),
         branch: targetBranch,
-        sha: !force && fileSha ? fileSha : void 0
+        sha: !force && fileSha ? fileSha : void 0,
       };
       const result = await octokit.rest.repos.createOrUpdateFileContents(
         updateParams
       );
       if ((_a = result.data.content) == null ? void 0 : _a.sha) {
-        saveCommitContent(owner, repo, path, targetBranch, content, result.data.content.sha);
+        saveCommitContent(
+          owner,
+          repo,
+          path,
+          targetBranch,
+          content,
+          result.data.content.sha
+        );
       }
       return result.data;
     } catch (error) {
-      if (error.status === 409) ;
+      if (error.status === 409);
       throw error;
     }
   };
@@ -326,14 +347,16 @@ const useGithub = () => {
       const owner = config.public.githubOwner;
       const repo = config.public.githubRepo;
       if (isFolder) {
-        const folderPath = path.endsWith("/") ? `${path}.gitkeep` : `${path}/.gitkeep`;
+        const folderPath = path.endsWith("/")
+          ? `${path}.gitkeep`
+          : `${path}/.gitkeep`;
         await octokit.rest.repos.createOrUpdateFileContents({
           owner,
           repo,
           path: folderPath,
           message: `Create new folder: ${path}`,
           content: btoa(""),
-          branch: currentBranch.value
+          branch: currentBranch.value,
         });
       } else {
         await octokit.rest.repos.createOrUpdateFileContents({
@@ -342,7 +365,7 @@ const useGithub = () => {
           path,
           message: `Create new file: ${path}`,
           content: btoa(unescape(encodeURIComponent(content))),
-          branch: currentBranch.value
+          branch: currentBranch.value,
         });
       }
       return true;
@@ -360,7 +383,7 @@ const useGithub = () => {
         owner,
         repo,
         path,
-        ref: currentBranch.value
+        ref: currentBranch.value,
       });
       if (Array.isArray(fileData)) {
         for (const file of fileData) {
@@ -373,7 +396,7 @@ const useGithub = () => {
           path,
           message: `Delete: ${path}`,
           sha: fileData.sha,
-          branch: currentBranch.value
+          branch: currentBranch.value,
         });
       }
       return true;
@@ -398,14 +421,14 @@ const useGithub = () => {
       );
       const { data: currentRef } = await octokit.rest.git.getRef({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
-        ref: `heads/${currentBranch.value}`
+        repo: "heroechotest",
+        ref: `heads/${currentBranch.value}`,
       });
       await octokit.rest.git.createRef({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         ref: `refs/heads/${branchName}`,
-        sha: currentRef.object.sha
+        sha: currentRef.object.sha,
       });
       console.log(`Created branch ${branchName}, fetching updated branch list`);
       await fetchBranches();
@@ -422,15 +445,15 @@ const useGithub = () => {
     try {
       const { data } = await octokit.rest.pulls.list({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
-        state: "open"
+        repo: "heroechotest",
+        state: "open",
       });
       const detailedPRs = await Promise.all(
         data.map(async (pr) => {
           const { data: prDetails } = await octokit.rest.pulls.get({
             owner: "tiresomefanatic",
-            repo: "test-nuxt",
-            pull_number: pr.number
+            repo: "heroechotest",
+            pull_number: pr.number,
           });
           return prDetails;
         })
@@ -446,8 +469,8 @@ const useGithub = () => {
     try {
       const { data } = await octokit.rest.repos.listCommits({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
-        per_page: 10
+        repo: "heroechotest",
+        per_page: 10,
       });
       return data;
     } catch (error) {
@@ -461,13 +484,13 @@ const useGithub = () => {
       try {
         await octokit.rest.repos.getBranch({
           owner: "tiresomefanatic",
-          repo: "test-nuxt",
-          branch: base
+          repo: "heroechotest",
+          branch: base,
         });
         await octokit.rest.repos.getBranch({
           owner: "tiresomefanatic",
-          repo: "test-nuxt",
-          branch: head
+          repo: "heroechotest",
+          branch: head,
         });
       } catch (error) {
         console.error("Branch validation failed:", error);
@@ -475,11 +498,11 @@ const useGithub = () => {
       }
       const { data } = await octokit.rest.pulls.create({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         base,
         head,
         title,
-        body
+        body,
       });
       return data;
     } catch (error) {
@@ -492,8 +515,8 @@ const useGithub = () => {
     try {
       const { data: pr } = await octokit.rest.pulls.get({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
-        pull_number: prNumber
+        repo: "heroechotest",
+        pull_number: prNumber,
       });
       const resolutionBranch = `conflict-resolution-${prNumber}-${Date.now()}`;
       await createBranch(resolutionBranch);
@@ -501,14 +524,14 @@ const useGithub = () => {
       if (resolution === "ours") {
         content = await getRawContent(
           "tiresomefanatic",
-          "test-nuxt",
+          "heroechotest",
           filePath,
           pr.base.ref
         );
       } else {
         content = await getRawContent(
           "tiresomefanatic",
-          "test-nuxt",
+          "heroechotest",
           filePath,
           pr.head.ref
         );
@@ -518,7 +541,7 @@ const useGithub = () => {
       }
       await saveFileContent(
         "tiresomefanatic",
-        "test-nuxt",
+        "heroechotest",
         filePath,
         content,
         `Resolve conflict in ${filePath} using ${resolution} changes`,
@@ -544,8 +567,11 @@ const useGithub = () => {
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
-      const timestamp = (/* @__PURE__ */ new Date()).getTime();
-      const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "-")}`;
+      const timestamp = /* @__PURE__ */ new Date().getTime();
+      const filename = `${timestamp}-${file.name.replace(
+        /[^a-zA-Z0-9.-]/g,
+        "-"
+      )}`;
       const path = `public/${subfolder}/${filename}`;
       const result = await octokit.rest.repos.createOrUpdateFileContents({
         owner: config.public.githubOwner,
@@ -553,7 +579,7 @@ const useGithub = () => {
         path,
         message: `Upload image: ${filename}`,
         content: base64Content,
-        branch: currentBranch.value
+        branch: currentBranch.value,
       });
       return `https://raw.githubusercontent.com/${config.public.githubOwner}/${config.public.githubRepo}/${currentBranch.value}/${path}`;
     } catch (error) {
@@ -564,7 +590,7 @@ const useGithub = () => {
   const getRepoInfo = () => {
     return {
       owner: "tiresomefanatic",
-      repo: "test-nuxt"
+      repo: "heroechotest",
     };
   };
   return {
@@ -588,12 +614,12 @@ const useGithub = () => {
     createNewContent,
     deleteContent,
     uploadImage,
-    getRepoInfo
+    getRepoInfo,
   };
 };
 function decodeBase64ToString(base64String) {
   return decodeURIComponent(
-    escape((undefined).atob(base64String.replace(/\n/g, "")))
+    escape(undefined.atob(base64String.replace(/\n/g, "")))
   );
 }
 

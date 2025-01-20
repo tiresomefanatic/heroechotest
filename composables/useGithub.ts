@@ -112,23 +112,39 @@ export const useGithub = () => {
   const latestContent = new Map<string, string>();
 
   // Helper functions for commit storage
-  const COMMIT_STORAGE_PREFIX = 'github_commit_';
+  const COMMIT_STORAGE_PREFIX = "github_commit_";
 
-  const getCommitStorageKey = (owner: string, repo: string, path: string, branch: string) => 
-    `${COMMIT_STORAGE_PREFIX}${owner}_${repo}_${path}_${branch}`;
+  const getCommitStorageKey = (
+    owner: string,
+    repo: string,
+    path: string,
+    branch: string
+  ) => `${COMMIT_STORAGE_PREFIX}${owner}_${repo}_${path}_${branch}`;
 
-  const saveCommitContent = (owner: string, repo: string, path: string, branch: string, content: string, sha: string) => {
+  const saveCommitContent = (
+    owner: string,
+    repo: string,
+    path: string,
+    branch: string,
+    content: string,
+    sha: string
+  ) => {
     if (process.client) {
       const key = getCommitStorageKey(owner, repo, path, branch);
       const data = {
         content,
-        sha
+        sha,
       };
       localStorage.setItem(key, JSON.stringify(data));
     }
   };
 
-  const getCommitContent = (owner: string, repo: string, path: string, branch: string) => {
+  const getCommitContent = (
+    owner: string,
+    repo: string,
+    path: string,
+    branch: string
+  ) => {
     if (process.client) {
       const key = getCommitStorageKey(owner, repo, path, branch);
       const stored = localStorage.getItem(key);
@@ -139,7 +155,12 @@ export const useGithub = () => {
     return null;
   };
 
-  const clearCommitContent = (owner: string, repo: string, path: string, branch: string) => {
+  const clearCommitContent = (
+    owner: string,
+    repo: string,
+    path: string,
+    branch: string
+  ) => {
     if (process.client) {
       const key = getCommitStorageKey(owner, repo, path, branch);
       localStorage.removeItem(key);
@@ -234,7 +255,9 @@ export const useGithub = () => {
       if (commitData) {
         if (commitData.content === githubContent) {
           // GitHub has caught up, clear commit storage
-          console.log("GitHub content matches commit storage, clearing storage");
+          console.log(
+            "GitHub content matches commit storage, clearing storage"
+          );
           clearCommitContent(owner, repo, path, targetBranch);
           return githubContent;
         }
@@ -320,7 +343,14 @@ export const useGithub = () => {
 
       // Save to commit storage
       if (result.data.content?.sha) {
-        saveCommitContent(owner, repo, path, targetBranch, content, result.data.content.sha);
+        saveCommitContent(
+          owner,
+          repo,
+          path,
+          targetBranch,
+          content,
+          result.data.content.sha
+        );
       }
 
       return result.data;
@@ -336,7 +366,7 @@ export const useGithub = () => {
   // Create a new file or folder
   const createNewContent = async (
     path: string,
-    content: string = '',
+    content: string = "",
     isFolder: boolean = false
   ) => {
     if (!isLoggedIn.value) return null;
@@ -344,17 +374,19 @@ export const useGithub = () => {
     try {
       const owner = config.public.githubOwner;
       const repo = config.public.githubRepo;
-      
+
       if (isFolder) {
         // GitHub doesn't have direct folder creation - we create a .gitkeep file
-        const folderPath = path.endsWith('/') ? `${path}.gitkeep` : `${path}/.gitkeep`;
+        const folderPath = path.endsWith("/")
+          ? `${path}.gitkeep`
+          : `${path}/.gitkeep`;
         await octokit.rest.repos.createOrUpdateFileContents({
           owner,
           repo,
           path: folderPath,
           message: `Create new folder: ${path}`,
-          content: btoa(''),
-          branch: currentBranch.value
+          content: btoa(""),
+          branch: currentBranch.value,
         });
       } else {
         // Create new file
@@ -364,13 +396,13 @@ export const useGithub = () => {
           path,
           message: `Create new file: ${path}`,
           content: btoa(unescape(encodeURIComponent(content))),
-          branch: currentBranch.value
+          branch: currentBranch.value,
         });
       }
 
       return true;
     } catch (error) {
-      console.error('Error creating content:', error);
+      console.error("Error creating content:", error);
       throw error;
     }
   };
@@ -388,7 +420,7 @@ export const useGithub = () => {
         owner,
         repo,
         path,
-        ref: currentBranch.value
+        ref: currentBranch.value,
       });
 
       if (Array.isArray(fileData)) {
@@ -404,13 +436,13 @@ export const useGithub = () => {
           path,
           message: `Delete: ${path}`,
           sha: fileData.sha,
-          branch: currentBranch.value
+          branch: currentBranch.value,
         });
       }
 
       return true;
     } catch (error) {
-      console.error('Error deleting content:', error);
+      console.error("Error deleting content:", error);
       throw error;
     }
   };
@@ -457,14 +489,14 @@ export const useGithub = () => {
       // Get current branch's latest commit
       const { data: currentRef } = await octokit.rest.git.getRef({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         ref: `heads/${currentBranch.value}`,
       });
 
       // Create new branch from current branch
       await octokit.rest.git.createRef({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         ref: `refs/heads/${branchName}`,
         sha: currentRef.object.sha,
       });
@@ -490,7 +522,7 @@ export const useGithub = () => {
     try {
       const { data } = await octokit.rest.pulls.list({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         state: "open",
       });
 
@@ -498,7 +530,7 @@ export const useGithub = () => {
         data.map(async (pr) => {
           const { data: prDetails } = await octokit.rest.pulls.get({
             owner: "tiresomefanatic",
-            repo: "test-nuxt",
+            repo: "heroechotest",
             pull_number: pr.number,
           });
           return prDetails;
@@ -519,7 +551,7 @@ export const useGithub = () => {
     try {
       const { data } = await octokit.rest.repos.listCommits({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         per_page: 10,
       });
 
@@ -544,12 +576,12 @@ export const useGithub = () => {
       try {
         await octokit.rest.repos.getBranch({
           owner: "tiresomefanatic",
-          repo: "test-nuxt",
+          repo: "heroechotest",
           branch: base,
         });
         await octokit.rest.repos.getBranch({
           owner: "tiresomefanatic",
-          repo: "test-nuxt",
+          repo: "heroechotest",
           branch: head,
         });
       } catch (error) {
@@ -559,7 +591,7 @@ export const useGithub = () => {
 
       const { data } = await octokit.rest.pulls.create({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         base,
         head,
         title,
@@ -583,7 +615,7 @@ export const useGithub = () => {
     try {
       const { data: pr } = await octokit.rest.pulls.get({
         owner: "tiresomefanatic",
-        repo: "test-nuxt",
+        repo: "heroechotest",
         pull_number: prNumber,
       });
 
@@ -596,14 +628,14 @@ export const useGithub = () => {
       if (resolution === "ours") {
         content = await getRawContent(
           "tiresomefanatic",
-          "test-nuxt",
+          "heroechotest",
           filePath,
           pr.base.ref
         );
       } else {
         content = await getRawContent(
           "tiresomefanatic",
-          "test-nuxt",
+          "heroechotest",
           filePath,
           pr.head.ref
         );
@@ -615,7 +647,7 @@ export const useGithub = () => {
 
       await saveFileContent(
         "tiresomefanatic",
-        "test-nuxt",
+        "heroechotest",
         filePath,
         content,
         `Resolve conflict in ${filePath} using ${resolution} changes`,
@@ -632,7 +664,7 @@ export const useGithub = () => {
   // Upload an image to the public folder
   const uploadImage = async (
     file: File,
-    subfolder: string = 'images'
+    subfolder: string = "images"
   ): Promise<string> => {
     if (!isLoggedIn.value) {
       throw new Error("Authentication required to upload images");
@@ -643,7 +675,7 @@ export const useGithub = () => {
       const base64Content = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-          const base64 = (reader.result as string).split(',')[1];
+          const base64 = (reader.result as string).split(",")[1];
           resolve(base64);
         };
         reader.onerror = reject;
@@ -652,7 +684,10 @@ export const useGithub = () => {
 
       // Generate a unique filename using timestamp
       const timestamp = new Date().getTime();
-      const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '-')}`;
+      const filename = `${timestamp}-${file.name.replace(
+        /[^a-zA-Z0-9.-]/g,
+        "-"
+      )}`;
       const path = `public/${subfolder}/${filename}`;
 
       // Upload to GitHub
@@ -662,13 +697,13 @@ export const useGithub = () => {
         path,
         message: `Upload image: ${filename}`,
         content: base64Content,
-        branch: currentBranch.value
+        branch: currentBranch.value,
       });
 
       // Return the URL to the uploaded image
       return `https://raw.githubusercontent.com/${config.public.githubOwner}/${config.public.githubRepo}/${currentBranch.value}/${path}`;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
       throw error;
     }
   };
@@ -676,14 +711,14 @@ export const useGithub = () => {
   // Get repository information
   const getRepoInfo = () => {
     if (process.client) {
-      const repoInfo = localStorage.getItem('github_repo_info');
+      const repoInfo = localStorage.getItem("github_repo_info");
       if (repoInfo) {
         return JSON.parse(repoInfo);
       }
     }
     return {
-      owner: 'tiresomefanatic',
-      repo: 'test-nuxt'
+      owner: "tiresomefanatic",
+      repo: "heroechotest",
     };
   };
 
@@ -718,7 +753,7 @@ export const useGithub = () => {
     createNewContent,
     deleteContent,
     uploadImage,
-    getRepoInfo
+    getRepoInfo,
   };
 };
 

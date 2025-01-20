@@ -355,7 +355,7 @@ const openCommit = async (commit: Commit) => {
   try {
     // Open commit in GitHub
     if (!commit.html_url) {
-      const url = `https://github.com/tiresomefanatic/test-nuxt/commit/${commit.sha}`;
+      const url = `https://github.com/tiresomefanatic/heroechotest/commit/${commit.sha}`;
       window.open(url, "_blank");
     } else {
       window.open(commit.html_url, "_blank");
@@ -364,7 +364,7 @@ const openCommit = async (commit: Commit) => {
     // Load commit content using getRawContent with commit SHA
     const content = await getRawContent(
       "tiresomefanatic",
-      "test-nuxt",
+      "heroechotest",
       props.filePath,
       commit.sha // Use commit SHA as the ref
     );

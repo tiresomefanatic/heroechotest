@@ -106,7 +106,7 @@ export default defineNuxtConfig({
         ? `https://${process.env.VERCEL_URL}`
         : process.env.NUXT_PUBLIC_SITE_URL || "http://localhost:3000",
       githubOwner: "tiresomefanatic",
-      githubRepo: "test-nuxt",
+      githubRepo: "heroechotest",
     },
   },
 

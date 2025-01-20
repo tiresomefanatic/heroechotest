@@ -139,7 +139,7 @@ const handleCommit = async () => {
   try {
     await saveFileContent(
       "tiresomefanatic",
-      "test-nuxt",
+      "heroechotest",
       props.filePath,
       localContent.value,
       commitMessage.value.trim(),
@@ -190,7 +190,7 @@ const insertAtCursor = (text: string) => {
   const textAfter = textarea.value.substring(endPos);
 
   localContent.value = textBefore + text + textAfter;
-  
+
   // Set cursor position after the inserted text
   nextTick(() => {
     textarea.focus();
@@ -322,7 +322,7 @@ const loadContent = async () => {
   try {
     const { content } = await fetchFileContent(
       "tiresomefanatic",
-      "test-nuxt",
+      "heroechotest",
       props.filePath,
       currentBranch.value
     );
